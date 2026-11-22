@@ -3,8 +3,12 @@ pipeline {
     agent {
         docker {
             image 'mcr.microsoft.com/playwright:v1.65.1-noble'
-            args '--ipc=host'
+            args '--ipc=host -e HOME=/tmp -e NPM_CONFIG_CACHE=/tmp/npm-cache'
         }
+    }
+
+    environment {
+        CI = 'true'
     }
 
     options {
@@ -23,7 +27,6 @@ pipeline {
             steps {
                 sh 'node --version'
                 sh 'npm --version'
-                sh 'npx playwright --version'
             }
         }
 
@@ -47,6 +50,7 @@ pipeline {
 
         stage('E2E Test - Playwright') {
             steps {
+                sh 'npx playwright --version'
                 sh 'npm run test:e2e'
             }
         }
