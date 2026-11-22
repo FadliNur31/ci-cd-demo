@@ -36,12 +36,6 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
-            steps {
-                sh 'npm ci'
-            }
-        }
-
         stage('Unit Test - Jest') {
             steps {
                 sh 'npm test -- --ci'
