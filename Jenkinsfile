@@ -1,7 +1,10 @@
 
 pipeline {
     agent {
-        label 'playwright'
+        docker {
+            image 'mcr.microsoft.com/playwright:v1.65.1-noble'
+            args '--ipc=host'
+        }
     }
 
     options {
@@ -16,10 +19,16 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Environment Info') {
             steps {
                 sh 'node --version'
                 sh 'npm --version'
+                sh 'npx playwright --version'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
                 sh 'npm ci'
             }
         }
@@ -38,7 +47,6 @@ pipeline {
 
         stage('E2E Test - Playwright') {
             steps {
-                sh 'npx playwright install chromium'
                 sh 'npm run test:e2e'
             }
         }
@@ -49,10 +57,10 @@ pipeline {
             echo 'Pipeline selesai dijalankan.'
         }
         success {
-            echo 'CI/CD berhasil!'
+            echo 'CI berhasil!'
         }
         failure {
-            echo 'CI/CD gagal. Periksa log setiap stage.'
+            echo 'CI gagal. Periksa log setiap stage.'
         }
     }
 }
