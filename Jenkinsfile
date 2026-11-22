@@ -31,6 +31,13 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
+                sh 'npm cache verify'
+                sh 'npm ci'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
                 sh 'npm ci'
             }
         }
