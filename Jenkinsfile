@@ -3,10 +3,9 @@ pipeline {
     agent {
         docker {
             image 'mcr.microsoft.com/playwright:v1.65.1-noble'
-            args '--ipc=host -e HOME=/tmp -e NPM_CONFIG_CACHE=/tmp/npm-cache'
+            args '--ipc=host -e HOME=/tmp -e NPM_CONFIG_CACHE=/tmp/npm-cache -v jenkins-npm-cache:/tmp/npm-cache'
         }
     }
-
     environment {
         CI = 'true'
     }
