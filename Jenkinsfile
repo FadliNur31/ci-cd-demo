@@ -1,11 +1,6 @@
 
 pipeline {
-    agent {
-        docker {
-            image 'mcr.microsoft.com/playwright:v1.65.1-noble'
-            args '--shm-size=1g -e HOME=/tmp -v /var/tmp/npm-cache:/tmp/npm-cache'
-        }
-    }
+    agent none
 
     environment {
         CI = 'true'
@@ -18,65 +13,69 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
+        stage('CI') {
+            agent {
+                docker {
+                    image 'mcr.microsoft.com/playwright:v1.65.1-noble'
+                    args '--shm-size=1g -e HOME=/tmp -v /var/tmp/npm-cache:/tmp/npm-cache'
+                }
             }
-        }
 
-        stage('Environment Info') {
-            steps {
-                sh 'node --version'
-                sh 'npm --version'
-            }
-        }
+            stages {
+                stage('Checkout') {
+                    steps {
+                        checkout scm
+                    }
+                }
 
-        stage('Install Dependencies') {
-            steps {
-                sh 'npm ci --prefer-offline'
-            }
-        }
+                stage('Environment Info') {
+                    steps {
+                        sh 'node --version'
+                        sh 'npm --version'
+                    }
+                }
 
-        stage('Unit Test - Jest') {
-            steps {
-                sh 'npm test -- --ci'
-            }
-        }
+                stage('Install Dependencies') {
+                    steps {
+                        sh 'npm ci --prefer-offline'
+                    }
+                }
 
-        stage('Build Next.js') {
-            steps {
-                sh 'npm run build'
-            }
-        }
+                stage('Unit Test - Jest') {
+                    steps {
+                        sh 'npm test -- --ci'
+                    }
+                }
 
+                stage('Build Next.js') {
+                    steps {
+                        sh 'npm run build'
+                    }
+                }
 
-        stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv('SonarQube') {
-                    withEnv([
-                        'SONAR_HOST_URL=http://host.docker.internal:9000'
-                    ]) {
-                        script {
-                            // Samakan user scanner dengan pemilik workspace
-                            def workspaceOwner = sh(
-                                script: "stat -c '%u:%g' .",
-                                returnStdout: true
-                            ).trim()
-
-                            docker.image(
-                                'sonarsource/sonar-scanner-cli:12.4.0.4321_8.4.0'
-                            ).inside("--user ${workspaceOwner}") {
-                                sh 'sonar-scanner -Dsonar.token="$SONAR_AUTH_TOKEN"'
-                            }
-                        }
+                stage('E2E Test - Playwright') {
+                    steps {
+                        sh 'npm run test:e2e'
                     }
                 }
             }
         }
 
-        stage('E2E Test - Playwright') {
+        stage('SonarQube Analysis') {
+            agent any
+
             steps {
-                sh 'npm run test:e2e'
+                withSonarQubeEnv('SonarQube') {
+                    sh '''
+                        docker run --rm \
+                            --user "$(id -u):$(id -g)" \
+                            -e SONAR_HOST_URL="http://host.docker.internal:9000" \
+                            -e SONAR_TOKEN="$SONAR_AUTH_TOKEN" \
+                            -v "$WORKSPACE:/usr/src" \
+                            -w /usr/src \
+                            sonarsource/sonar-scanner-cli:12.4.0.4321_8.4.0
+                    '''
+                }
             }
         }
     }
