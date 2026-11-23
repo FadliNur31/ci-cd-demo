@@ -3,9 +3,10 @@ pipeline {
     agent {
         docker {
             image 'mcr.microsoft.com/playwright:v1.65.1-noble'
-           args '--shm-size=1g -e HOME=/tmp -e NPM_CONFIG_CACHE=/tmp/npm-cache -v /var/tmp/npm-cache:/tmp/npm-cache'
+            args '--shm-size=1g -e HOME=/tmp -e NPM_CONFIG_CACHE=/tmp/npm-cache -v /var/tmp/npm-cache:/tmp/npm-cache'
         }
     }
+
     environment {
         CI = 'true'
     }
@@ -31,7 +32,7 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh 'npm ci'
+                sh 'npm ci --prefer-offline'
             }
         }
 
@@ -49,7 +50,6 @@ pipeline {
 
         stage('E2E Test - Playwright') {
             steps {
-                sh 'npx playwright --version'
                 sh 'npm run test:e2e'
             }
         }
