@@ -49,6 +49,31 @@ pipeline {
             }
         }
 
+
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    withEnv([
+                        'SONAR_HOST_URL=http://host.docker.internal:9000'
+                    ]) {
+                        script {
+                            // Samakan user scanner dengan pemilik workspace
+                            def workspaceOwner = sh(
+                                script: "stat -c '%u:%g' .",
+                                returnStdout: true
+                            ).trim()
+
+                            docker.image(
+                                'sonarsource/sonar-scanner-cli:12.4.0.4321_8.4.0'
+                            ).inside("--user ${workspaceOwner}") {
+                                sh 'sonar-scanner -Dsonar.token="$SONAR_AUTH_TOKEN"'
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         stage('E2E Test - Playwright') {
             steps {
                 sh 'npm run test:e2e'
