@@ -11,6 +11,7 @@ pipeline {
     }
 
     options {
+        timestamps()
         skipDefaultCheckout(true)
     }
 
@@ -30,7 +31,7 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh 'npm ci --prefer-offline --timing'
+                sh 'npm ci --prefer-offline'
             }
         }
 
