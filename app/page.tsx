@@ -11,7 +11,7 @@ type Task = {
 
 export default function Home() {
   const [tasks, setTasks] = useState<Task[]>([
-    { id: 1, title: "Belajar Jenkins", completed: false },
+    { id: 1, title: "Belaja Jenkins", completed: false },
     { id: 2, title: "Belajar Playwright", completed: false },
   ]);
 

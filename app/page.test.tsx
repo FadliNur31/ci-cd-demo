@@ -6,7 +6,7 @@ describe("Task Management", () => {
   test("menampilkan daftar tugas awal", () => {
     render(<Home />);
 
-    expect(screen.getByText("Belajar Jenkins")).toBeInTheDocument();
+    expect(screen.getByText("Belaja Jenkins")).toBeInTheDocument();
     expect(screen.getByText("Belajar Playwright")).toBeInTheDocument();
   });
 
@@ -35,7 +35,7 @@ describe("Task Management", () => {
   test("pengguna dapat menandai tugas selesai", () => {
     render(<Home />);
 
-    const task = screen.getByText("Belajar Jenkins");
+    const task = screen.getByText("Belaja Jenkins");
 
     fireEvent.click(task);
 
@@ -49,6 +49,6 @@ describe("Task Management", () => {
 
     fireEvent.click(deleteButtons[0]);
 
-    expect(screen.queryByText("Belajar Jenkins")).not.toBeInTheDocument();
+    expect(screen.queryByText("Belaja Jenkins")).not.toBeInTheDocument();
   });
 });

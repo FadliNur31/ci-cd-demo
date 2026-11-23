@@ -42,7 +42,7 @@ test("pengguna dapat menambahkan tugas", async ({ page }) => {
   test("pengguna dapat menandai tugas selesai", async ({ page }) => {
     await page.goto("/");
 
-    const task = page.getByText("Belajar Jenkins");
+    const task = page.getByText("Belaja Jenkins");
 
     await task.click();
 
