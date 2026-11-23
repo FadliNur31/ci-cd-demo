@@ -3,7 +3,7 @@ pipeline {
     agent {
         docker {
             image 'mcr.microsoft.com/playwright:v1.65.1-noble'
-            args '--ipc=host -e HOME=/tmp -e NPM_CONFIG_CACHE=/tmp/npm-cache -v jenkins-npm-cache:/tmp/npm-cache'
+           args '--shm-size=1g -e HOME=/tmp -e NPM_CONFIG_CACHE=/tmp/npm-cache -v /var/tmp/npm-cache:/tmp/npm-cache'
         }
     }
     environment {
@@ -31,7 +31,6 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh 'npm cache verify'
                 sh 'npm ci'
             }
         }
