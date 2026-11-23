@@ -32,7 +32,7 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh 'npm ci --prefer-offline'
+                sh 'npm ci --prefer-offline --no-audit --no-fund'
             }
         }
 
