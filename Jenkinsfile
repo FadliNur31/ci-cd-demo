@@ -2,7 +2,8 @@ pipeline {
     agent {
         docker {
             image 'mcr.microsoft.com/playwright:v1.65.1-noble'
-            args '--shm-size=1g -e HOME=/tmp -e NPM_CONFIG_CACHE=/tmp/npm-cache -v /var/tmp/npm-cache:/tmp/npm-cache'
+            args '--shm-size=1g -e HOME=/tmp'
+            // args '--shm-size=1g -e HOME=/tmp -e NPM_CONFIG_CACHE=/tmp/npm-cache -v /var/tmp/npm-cache:/tmp/npm-cache'
         }
     }
 
@@ -31,7 +32,15 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh 'npm ci --prefer-offline'
+                cache(caches: [
+                    arbitraryFileCache(
+                        path: '.npm',
+                        cacheName: 'npm-download-cache',
+                        compressionMethod: 'TARGZ_BEST_SPEED'
+                    )
+                ]) {
+                    sh 'npm ci --prefer-offline --cache .npm'
+                }
             }
         }
 
